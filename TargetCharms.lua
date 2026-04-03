@@ -62,6 +62,12 @@ local texturePaths = {
     "interface\\icons\\ability_hunter_snipershot.blp"
 };
 
+-- Blizzard's CompactRaidFrameManager ground-marker "reset" uses raidMarkerReset -> ClearRaidMarker() (no args), not a slash.
+-- Secure macros should use the localized clear-all token (ALL + SLASH_CLEAR_WORLD_MARKER1), same pattern as MRT on Midnight; /cwm 0 can fail on some clients.
+local function TargetCharms_GetClearAllWorldMarkersMacroText()
+    return string.format("%s %s", SLASH_CLEAR_WORLD_MARKER1 or "/cwm", ALL or "All");
+end
+
 -- Midnight+: IsRaidMarkerSystemEnabled() (Patch 12.0.0) — neutralize /tm when the client disables raid markers.
 function TargetCharms_UpdateRaidMarkerButtons()
     if type(IsRaidMarkerSystemEnabled) ~= "function" then
@@ -670,8 +676,7 @@ function FormatButton(frame, buttonNum, posChar, typeNum, xSpacing, ySpacing)
             MakeCharm(frame, button, buttonNum, 0, 2, 0.15, 0.85, 0.15, 0.85, 0, 0, 32, 32);
             SetTexture(button, _G[button:GetName() .. "TextureIcon"], 3, 0, 1, 0, 1, 3, -2, 26, 26);
             _G[button:GetName() .. "TextureColor"]:SetTexture();
-            -- /clearworldmarker 0 — clears all world markers (see warcraft.wiki.gg/wiki/MACRO_clearworldmarker)
-            button:SetAttribute("macrotext", "/cwm 0");
+            button:SetAttribute("macrotext", TargetCharms_GetClearAllWorldMarkersMacroText());
             button:Show();
         else
             button = MakeButton(frame, buttonNum, true);
